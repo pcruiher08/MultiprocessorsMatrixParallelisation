@@ -10,8 +10,10 @@ void multiplicaDosMatrices(double** resultado, double** A, double** B, int verti
 
     for(int i = 0; i < verticalResultado; i++){
         for(int j = 0; j < horizontalResultado; j++){
-            for(int k = 0; k < horizontalA; k++)
-                *(*(resultado+i)+j) += *(*(A)+k) * *(*(B)+k);
+            for(int k = 0; k < horizontalA; k++){
+                cout<< *(*(A+i)+k) << " * " << *(*(B+j)+k) << " = " << *(*(A+i)+k) * *(*(B+j)+k)<<endl;
+                *(*(resultado+i)+j) += *(*(A+i)+k) * *(*(B+j)+k);
+            }
         }
     }
 
