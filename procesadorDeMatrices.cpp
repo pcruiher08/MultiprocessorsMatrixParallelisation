@@ -32,7 +32,6 @@ void imprimeMatriz(double** matriz, int vertical, int horizontal, ofstream &arch
         }
         //cout<<endl;
     }
-    archivoResultante<<endl;
 }
 
 uint64_t nanos()
@@ -50,9 +49,9 @@ uint64_t tiempoEnNanosegundos = 0;
 ifstream lecturaA;
 ifstream lecturaB;
 ofstream archivoResultante;
-lecturaA.open("matrixA2500.txt");
-lecturaB.open("matrixB2500.txt");
-archivoResultante.open("matrizResultante50.txt");
+lecturaA.open("matrixA1048576.txt");
+lecturaB.open("matrixB1048576.txt");
+archivoResultante.open("matrizResultante1024.txt");
 
 int horizontalA, verticalA; 
 cout<<"Cuanto mide la matriz A horizontalmente? "; 
