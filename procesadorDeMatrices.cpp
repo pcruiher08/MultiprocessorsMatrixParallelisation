@@ -48,8 +48,7 @@ cin>>horizontalB;
 cout<<"Cuanto mide la matriz B verticalmente? ";
 cin>>verticalB;
 
-//aqui la matriz B esta transpuesta para solo hacer producto punto, entonces hay que fijarnos que midan lo mismo horizontalmente, sino, no se pueden multiplicar
-if(horizontalA != horizontalB){
+if(horizontalA != verticalB){
     cout<<"No se pueden multiplicar las matrices"<<endl;
     return 0;
 }
@@ -72,7 +71,7 @@ for(int i = 0; i < horizontalB; i++){
 
 int verticalResultado, horizontalResultado;
 verticalResultado = verticalA;
-horizontalResultado = verticalB; //vertical porque B se maneja transpuesta
+horizontalResultado = horizontalB;
 
 double **resultado = (double**)malloc(horizontalResultado * sizeof(double));
 for(int i = 0; i < horizontalResultado; i++){
@@ -103,10 +102,11 @@ swap(verticalB, horizontalB);
 cout<<"hola"<<endl;
 
 imprimeMatriz((double **)matrizA, verticalA, horizontalA);
+//se imprime transpuesta tambien
 imprimeMatriz((double **)matrizB, verticalB, horizontalB);
+cout<<"vertical "<<verticalResultado << " horizontal "<<horizontalResultado<<endl;
 
 multiplicaDosMatrices(resultado, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
-
 imprimeMatriz((double **)resultado, verticalResultado, horizontalResultado);
 
 
