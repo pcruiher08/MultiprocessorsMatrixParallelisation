@@ -4,6 +4,7 @@
 #include <fstream>
 #include <time.h>
 #include <chrono>
+#include <iomanip>
 using namespace std;
 
 void multiplicaDosMatrices(double** resultado, double** A, double** B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB){
@@ -20,15 +21,18 @@ void multiplicaDosMatrices(double** resultado, double** A, double** B, int verti
 
 }
 
-void imprimeMatriz(double** matriz, int vertical, int horizontal){
+void imprimeMatriz(double** matriz, int vertical, int horizontal, ofstream &archivoResultante){
     for(int i = 0; i < vertical; i++){
         for(int j = 0; j < horizontal; j++){
             //cout<<matriz[i][j]<<" ";
-            cout<<*(*(matriz+i)+j)<<" ";
+            //cout<<*(*(matriz+i)+j)<<" ";
+            archivoResultante<<fixed<<setprecision(10)<<*(*(matriz+i)+j)<<endl;
+            
             //cout<<*( matriz + i * horizontal + j) << " ";
         }
-        cout<<endl;
+        //cout<<endl;
     }
+    archivoResultante<<endl;
 }
 
 uint64_t nanos()
@@ -45,8 +49,10 @@ int tiempoTranscurrido = 0;
 uint64_t tiempoEnNanosegundos = 0;
 ifstream lecturaA;
 ifstream lecturaB;
-lecturaA.open("matrixA1048576.txt");
-lecturaB.open("matrixB1048576.txt");
+ofstream archivoResultante;
+lecturaA.open("matrixA2500.txt");
+lecturaB.open("matrixB2500.txt");
+archivoResultante.open("matrizResultante50.txt");
 
 int horizontalA, verticalA; 
 cout<<"Cuanto mide la matriz A horizontalmente? "; 
@@ -124,7 +130,7 @@ fin = nanos();
 end = clock();
 tiempoTranscurrido = end - start;
 tiempoEnNanosegundos = fin - inicio;
-//imprimeMatriz((double **)resultado, verticalResultado, horizontalResultado);
+imprimeMatriz((double **)resultado, verticalResultado, horizontalResultado, archivoResultante);
 cout<<"Se obtuvo en "<<tiempoTranscurrido<<" ms"<<endl;
 cout<<"Se obtuvo en "<<tiempoEnNanosegundos<<" ns"<<endl;
 
