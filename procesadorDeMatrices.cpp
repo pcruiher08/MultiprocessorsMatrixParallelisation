@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
+#include <time.h>
 
 using namespace std;
 
@@ -11,7 +12,7 @@ void multiplicaDosMatrices(double** resultado, double** A, double** B, int verti
     for(int i = 0; i < verticalResultado; i++){
         for(int j = 0; j < horizontalResultado; j++){
             for(int k = 0; k < horizontalA; k++){
-                cout<< *(*(A+i)+k) << " * " << *(*(B+j)+k) << " = " << *(*(A+i)+k) * *(*(B+j)+k)<<endl;
+                //cout<< *(*(A+i)+k) << " * " << *(*(B+j)+k) << " = " << *(*(A+i)+k) * *(*(B+j)+k)<<endl;
                 *(*(resultado+i)+j) += *(*(A+i)+k) * *(*(B+j)+k);
             }
         }
@@ -31,10 +32,12 @@ void imprimeMatriz(double** matriz, int vertical, int horizontal){
 }
 
 int main(){
+clock_t start, end;
+int tiempoTranscurrido = 0;
 ifstream lecturaA;
 ifstream lecturaB;
-lecturaA.open("testA.txt");
-lecturaB.open("testB.txt");
+lecturaA.open("matrixA1048576.txt");
+lecturaB.open("matrixB1048576.txt");
 
 int horizontalA, verticalA; 
 cout<<"Cuanto mide la matriz A horizontalmente? "; 
@@ -99,16 +102,18 @@ for(int i = 0; i < verticalB; i++){
 }
 
 swap(verticalB, horizontalB);
-cout<<"hola"<<endl;
 
-imprimeMatriz((double **)matrizA, verticalA, horizontalA);
+//imprimeMatriz((double **)matrizA, verticalA, horizontalA);
 //se imprime transpuesta tambien
-imprimeMatriz((double **)matrizB, verticalB, horizontalB);
-cout<<"vertical "<<verticalResultado << " horizontal "<<horizontalResultado<<endl;
+//imprimeMatriz((double **)matrizB, verticalB, horizontalB);
+//cout<<"vertical "<<verticalResultado << " horizontal "<<horizontalResultado<<endl;
 
+start = clock();
 multiplicaDosMatrices(resultado, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
-imprimeMatriz((double **)resultado, verticalResultado, horizontalResultado);
-
+end = clock();
+tiempoTranscurrido = end - start;
+//imprimeMatriz((double **)resultado, verticalResultado, horizontalResultado);
+cout<<"Se obtuvo en "<<tiempoTranscurrido<<" ms"<<endl;
 
 /*
 for(int i = 0; i < vertical; i++){
