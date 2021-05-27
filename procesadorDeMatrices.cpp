@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <time.h>
-
+#include <chrono>
 using namespace std;
 
 void multiplicaDosMatrices(double** resultado, double** A, double** B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB){
@@ -31,9 +31,18 @@ void imprimeMatriz(double** matriz, int vertical, int horizontal){
     }
 }
 
+uint64_t nanos()
+{
+    uint64_t ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::
+                  now().time_since_epoch()).count();
+    return ns; 
+}
+
 int main(){
 clock_t start, end;
+uint64_t inicio, fin;
 int tiempoTranscurrido = 0;
+uint64_t tiempoEnNanosegundos = 0;
 ifstream lecturaA;
 ifstream lecturaB;
 lecturaA.open("matrixA1048576.txt");
@@ -109,11 +118,16 @@ swap(verticalB, horizontalB);
 //cout<<"vertical "<<verticalResultado << " horizontal "<<horizontalResultado<<endl;
 
 start = clock();
+inicio = nanos();
 multiplicaDosMatrices(resultado, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
+fin = nanos();
 end = clock();
 tiempoTranscurrido = end - start;
+tiempoEnNanosegundos = fin - inicio;
 //imprimeMatriz((double **)resultado, verticalResultado, horizontalResultado);
 cout<<"Se obtuvo en "<<tiempoTranscurrido<<" ms"<<endl;
+cout<<"Se obtuvo en "<<tiempoEnNanosegundos<<" ns"<<endl;
+
 
 /*
 for(int i = 0; i < vertical; i++){
