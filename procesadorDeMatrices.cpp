@@ -145,7 +145,7 @@ for(int i = 0; i < vertical; i++){
 
 lecturaA.close();
 lecturaB.close();
-
+archivoResultante.close();
 
 
 return 0;
