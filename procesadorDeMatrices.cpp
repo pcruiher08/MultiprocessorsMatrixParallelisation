@@ -8,10 +8,22 @@
 using namespace std;
 
 void multiplicaDosMatrices(double** resultado, double** A, double** B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB){
-
-
     for(int i = 0; i < verticalResultado; i++){
         for(int j = 0; j < horizontalResultado; j++){
+            for(int k = 0; k < horizontalA; k++){
+                //cout<< *(*(A+i)+k) << " * " << *(*(B+j)+k) << " = " << *(*(A+i)+k) * *(*(B+j)+k)<<endl;
+                *(*(resultado+i)+j) += *(*(A+i)+k) * *(*(B+j)+k);
+            }
+        }
+    }
+
+}
+
+
+void multiplicaDosMatricesOMP(double** resultado, double** A, double** B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB){
+    for(int i = 0; i < verticalResultado; i++){
+        for(int j = 0; j < horizontalResultado; j++){
+            #pragma omp parallel for private(i, j, k)
             for(int k = 0; k < horizontalA; k++){
                 //cout<< *(*(A+i)+k) << " * " << *(*(B+j)+k) << " = " << *(*(A+i)+k) * *(*(B+j)+k)<<endl;
                 *(*(resultado+i)+j) += *(*(A+i)+k) * *(*(B+j)+k);
