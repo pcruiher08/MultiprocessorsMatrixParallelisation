@@ -16,7 +16,6 @@ void multiplicaDosMatrices(double** resultado, double** A, double** B, int verti
             }
         }
     }
-
 }
 
 
@@ -30,7 +29,6 @@ void multiplicaDosMatricesOMP(double** resultado, double** A, double** B, int ve
             }
         }
     }
-
 }
 
 void imprimeMatriz(double** matriz, int vertical, int horizontal, ofstream &archivoResultante){
