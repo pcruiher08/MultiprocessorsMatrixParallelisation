@@ -244,20 +244,22 @@ int main() {
 	cout << "Se guardo el archivo en " << tiempoTranscurrido << " ms" << endl;
 	cout << "Se guardo el archivo en " << tiempoEnNanosegundos << " ns" << endl;
 
-
-	/*
-	for(int i = 0; i < vertical; i++){
-		for(int j = 0; j < horizontal; j++){
-			cout<<matriz[i][j]<<" ";
-		}
-		cout<<endl;
-	}
-	*/
-
 	lecturaA.close();
 	lecturaB.close();
 	archivoResultante.close();
 
+    for (int i = 0; i < horizontalA; i++) {
+        free(matrizA[i]);
+    }
+    free(matrizA);
+    for (int i = 0; i < horizontalA; i++) {
+        free(matrizB[i]);
+    }
+    free(matrizB);
+    for (int i = 0; i < horizontalA; i++) {
+        free(resultado[i]);
+    }
+    free(resultado);
 
 	return 0;
 }
