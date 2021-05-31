@@ -1,0 +1,3 @@
+﻿  procesadorDeMatrices.cpp
+MSVCRTD.lib(exe_winmain.obj) : error LNK2019: símbolo externo _WinMain@16 sin resolver al que se hace referencia en la función "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ)
+D:\programacion\MultiprocessorsMatrixParallelisation\Debug\FinalMultis.exe : fatal error LNK1120: 1 externos sin resolver
