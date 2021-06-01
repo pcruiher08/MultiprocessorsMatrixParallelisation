@@ -300,6 +300,5 @@ int main() {
 	free(matrizA);
 	free(matrizB);
 	free(resultado);
-	int x; cin >> x;
 	return 0;
 }
