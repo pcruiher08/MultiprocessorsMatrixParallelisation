@@ -55,7 +55,6 @@ void multiplicaDosMatricesIntrin(double* resultado, double* A, double* B, int ve
 				b_reg = _mm256_load_pd(*(B + j) + k);
 				c_reg = _mm256_mul_pd(a_reg, b_reg);
 				_mm256_store_pd(aux, c_reg);
-
 				*(*(resultado + i) + j) += aux[0] + aux[1] + aux[2] + aux[3];
 				*/
 				a_reg = _mm256_load_pd(&A[i * verticalResultado + k]);
@@ -99,6 +98,36 @@ int main() {
 	uint64_t inicio, fin;
 	int tiempoTranscurrido = 0;
 	uint64_t tiempoEnNanosegundos = 0;
+	int tiempoTranscurridoS1 = 0;
+	uint64_t tiempoEnNanosegundosS1 = 0;
+	int tiempoTranscurridoS2 = 0;
+	uint64_t tiempoEnNanosegundosS2 = 0;
+	int tiempoTranscurridoS3 = 0;
+	uint64_t tiempoEnNanosegundosS3 = 0;
+	int tiempoTranscurridoS4 = 0;
+	uint64_t tiempoEnNanosegundosS4 = 0;
+	int tiempoTranscurridoS5 = 0;
+	uint64_t tiempoEnNanosegundosS5 = 0;
+	int tiempoTranscurridoO1 = 0;
+	uint64_t tiempoEnNanosegundosO1 = 0;
+	int tiempoTranscurridoO2 = 0;
+	uint64_t tiempoEnNanosegundosO2 = 0;
+	int tiempoTranscurridoO3 = 0;
+	uint64_t tiempoEnNanosegundosO3 = 0;
+	int tiempoTranscurridoO4 = 0;
+	uint64_t tiempoEnNanosegundosO4 = 0;
+	int tiempoTranscurridoO5 = 0;
+	uint64_t tiempoEnNanosegundosO5 = 0;
+	int tiempoTranscurridoI1 = 0;
+	uint64_t tiempoEnNanosegundosI1 = 0;
+	int tiempoTranscurridoI2 = 0;
+	uint64_t tiempoEnNanosegundosI2 = 0;
+	int tiempoTranscurridoI3 = 0;
+	uint64_t tiempoEnNanosegundosI3 = 0;
+	int tiempoTranscurridoI4 = 0;
+	uint64_t tiempoEnNanosegundosI4 = 0;
+	int tiempoTranscurridoI5 = 0;
+	uint64_t tiempoEnNanosegundosI5 = 0;
 	ifstream lecturaA;
 	ifstream lecturaB;
 	ofstream archivoResultante;
@@ -144,7 +173,6 @@ int main() {
 	for (int i = 0; i < horizontalA; i++) {
 		matrizA[i] = (double*)malloc(verticalA * sizeof(double));
 	}
-
 	double** matrizB = (double**)malloc(horizontalB * sizeof(double));
 	for (int i = 0; i < horizontalB; i++) {
 		matrizB[i] = (double*)malloc(verticalB * sizeof(double));
@@ -166,7 +194,9 @@ int main() {
 		resultado[i] = (double*)malloc(verticalResultado * sizeof(double));
 	}
 	*/
-	double* resultado = (double*)malloc(horizontalResultado * verticalResultado * sizeof(double));
+	double* resultadoS = (double*)malloc(horizontalResultado * verticalResultado * sizeof(double));
+	double* resultadoO = (double*)malloc(horizontalResultado * verticalResultado * sizeof(double));
+	double* resultadoI = (double*)malloc(horizontalResultado * verticalResultado * sizeof(double));
 
 
 	double read;
@@ -214,62 +244,135 @@ int main() {
 
 	cout << "----------Calculo de la matriz resultante----------" << endl;
 
-	cout << "-----Serial-----" << endl;
+	for (int i = 0; i < 5; i++) {
 
-	start = clock();
-	inicio = nanos();
+		cout << "-------Iteracion " << i + 1 << "-------" << endl;
 
-	multiplicaDosMatrices(resultado, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
+		cout << "-----Serial-----" << endl;
 
-	fin = nanos();
-	end = clock();
+		start = clock();
+		inicio = nanos();
 
-	tiempoTranscurrido = end - start;
-	tiempoEnNanosegundos = fin - inicio;
+		multiplicaDosMatrices(resultadoS, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
 
-	cout << "Se obtuvo el resultado en " << tiempoTranscurrido << " ms" << endl;
-	cout << "Se obtuvo el resultado en " << tiempoEnNanosegundos << " ns" << endl;
+		fin = nanos();
+		end = clock();
 
-	//imprimeMatriz(resultado, verticalResultado, horizontalResultado, archivoResultante);
+		tiempoTranscurrido = end - start;
+		tiempoEnNanosegundos = fin - inicio;
 
-	cout << "-----Open MP-----" << endl;
+		switch (i) {
+			case 0:
+				tiempoTranscurridoS1 = end - start;
+				tiempoEnNanosegundosS1 = fin - inicio;
+			case 1:
+				tiempoTranscurridoS2 = end - start;
+				tiempoEnNanosegundosS2 = fin - inicio;
+			case 2:
+				tiempoTranscurridoS3 = end - start;
+				tiempoEnNanosegundosS3 = fin - inicio;
+			case 3:
+				tiempoTranscurridoS4 = end - start;
+				tiempoEnNanosegundosS4 = fin - inicio;
+			case 4:
+				tiempoTranscurridoS5 = end - start;
+				tiempoEnNanosegundosS5 = fin - inicio;
+		}
 
-	start = clock();
-	inicio = nanos();
+		cout << "Se obtuvo el resultado en " << tiempoTranscurrido << " ms" << endl;
+		cout << "Se obtuvo el resultado en " << tiempoEnNanosegundos << " ns" << endl;
 
-	multiplicaDosMatricesOMP(resultado, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
+		//imprimeMatriz(resultado, verticalResultado, horizontalResultado, archivoResultante);
 
-	fin = nanos();
-	end = clock();
+		cout << "-----Open MP-----" << endl;
 
-	tiempoTranscurrido = end - start;
-	tiempoEnNanosegundos = fin - inicio;
+		start = clock();
+		inicio = nanos();
 
-	cout << "Se obtuvo el resultado en " << tiempoTranscurrido << " ms" << endl;
-	cout << "Se obtuvo el resultado en " << tiempoEnNanosegundos << " ns" << endl;
+		multiplicaDosMatricesOMP(resultadoO, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
 
-	cout << "-----Intrinsecas-----" << endl;
+		fin = nanos();
+		end = clock();
 
-	start = clock();
-	inicio = nanos();
+		tiempoTranscurrido = end - start;
+		tiempoEnNanosegundos = fin - inicio;
 
-	multiplicaDosMatricesIntrin(resultado, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
+		switch (i) {
+		case 0:
+			tiempoTranscurridoO1 = end - start;
+			tiempoEnNanosegundosO1 = fin - inicio;
+		case 1:
+			tiempoTranscurridoO2 = end - start;
+			tiempoEnNanosegundosO2 = fin - inicio;
+		case 2:
+			tiempoTranscurridoO3 = end - start;
+			tiempoEnNanosegundosO3 = fin - inicio;
+		case 3:
+			tiempoTranscurridoO4 = end - start;
+			tiempoEnNanosegundosO4 = fin - inicio;
+		case 4:
+			tiempoTranscurridoO5 = end - start;
+			tiempoEnNanosegundosO5 = fin - inicio;
+		}
 
-	fin = nanos();
-	end = clock();
+		cout << "Se obtuvo el resultado en " << tiempoTranscurrido << " ms" << endl;
+		cout << "Se obtuvo el resultado en " << tiempoEnNanosegundos << " ns" << endl;
 
-	tiempoTranscurrido = end - start;
-	tiempoEnNanosegundos = fin - inicio;
+		cout << "-----Intrinsecas-----" << endl;
 
-	cout << "Se obtuvo el resultado en " << tiempoTranscurrido << " ms" << endl;
-	cout << "Se obtuvo el resultado en " << tiempoEnNanosegundos << " ns" << endl;
+		start = clock();
+		inicio = nanos();
+
+		multiplicaDosMatricesIntrin(resultadoI, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
+
+		fin = nanos();
+		end = clock();
+
+		tiempoTranscurrido = end - start;
+		tiempoEnNanosegundos = fin - inicio;
+
+		switch (i) {
+		case 0:
+			tiempoTranscurridoI1 = end - start;
+			tiempoEnNanosegundosI1 = fin - inicio;
+		case 1:
+			tiempoTranscurridoI2 = end - start;
+			tiempoEnNanosegundosI2 = fin - inicio;
+		case 2:
+			tiempoTranscurridoI3 = end - start;
+			tiempoEnNanosegundosI3 = fin - inicio;
+		case 3:
+			tiempoTranscurridoI4 = end - start;
+			tiempoEnNanosegundosI4 = fin - inicio;
+		case 4:
+			tiempoTranscurridoI5 = end - start;
+			tiempoEnNanosegundosI5 = fin - inicio;
+		}
+
+		cout << "Se obtuvo el resultado en " << tiempoTranscurrido << " ms" << endl;
+		cout << "Se obtuvo el resultado en " << tiempoEnNanosegundos << " ns" << endl;
+
+		cout << "-------Comprobacion-------" << endl;
+
+		for (int j = 0; j < verticalResultado; j++) {
+			for (int k = 0; k < horizontalResultado; k++) {
+				if (resultadoS[j * verticalResultado + k] != resultadoO[j * verticalResultado + k] && resultadoS[j * verticalResultado + k] != resultadoI[j * verticalResultado + k]) {
+					cout << "Error en alguna de las matrices" << endl;
+					return 0;
+				}
+			}
+		}
+
+		cout << "Las matrices fueron calculadas correctamente" << endl;
+
+	}
 
 	cout << "----------Guardando el resultado----------" << endl;
 
 	start = clock();
 	inicio = nanos();
 
-	imprimeMatriz(resultado, verticalResultado, horizontalResultado, archivoResultante);
+	imprimeMatriz(resultadoS, verticalResultado, horizontalResultado, archivoResultante);
 
 	fin = nanos();
 	end = clock();
@@ -299,6 +402,8 @@ int main() {
 	*/
 	free(matrizA);
 	free(matrizB);
-	free(resultado);
+	free(resultadoS);
+	free(resultadoO);
+	free(resultadoI);
 	return 0;
 }
