@@ -10,57 +10,76 @@
 
 using namespace std;
 
-void multiplicaDosMatrices(double** resultado, double** A, double** B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB) {
+void multiplicaDosMatrices(double* resultado, double* A, double* B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB) {
 	for (int i = 0; i < verticalResultado; i++) {
 		for (int j = 0; j < horizontalResultado; j++) {
-			*(*(resultado + i) + j) = 0;
+			//*(*(resultado + i) + j) = 0;
+			resultado[i * verticalResultado + j] = 0;
 			for (int k = 0; k < horizontalA; k++) {
-				*(*(resultado + i) + j) += (*(*(A + i) + k)) * (*(*(B + j) + k));
+				//*(*(resultado + i) + j) += (*(*(A + i) + k)) * (*(*(B + j) + k));
+				resultado[i * verticalResultado + j] += A[i * verticalResultado + k] * B[j * verticalResultado + k];
+
 			}
 		}
 	}
 }
 
 
-void multiplicaDosMatricesOMP(double** resultado, double** A, double** B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB) {
+void multiplicaDosMatricesOMP(double* resultado, double* A, double* B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB) {
 #pragma omp parallel for
 	for (int i = 0; i < verticalResultado; i++) {
 		for (int j = 0; j < horizontalResultado; j++) {
-			*(*(resultado + i) + j) = 0;
+			resultado[i * verticalResultado + j] = 0;
+			//*(*(resultado + i) + j) = 0;
 			for (int k = 0; k < horizontalA; k++) {
-				*(*(resultado + i) + j) += *(*(A + i) + k) * *(*(B + j) + k);
+				//*(*(resultado + i) + j) += *(*(A + i) + k) * *(*(B + j) + k);
+				resultado[i * verticalResultado + j] += A[i * verticalResultado + k] * B[j * verticalResultado + k];
+
 			}
 		}
 	}
 }
 
-void multiplicaDosMatricesIntrin(double** resultado, double** A, double** B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB) {
+void multiplicaDosMatricesIntrin(double* resultado, double* A, double* B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB) {
 	for (int i = 0; i < verticalResultado; i++) {
 		for (int j = 0; j < horizontalResultado; j++) {
-			*(*(resultado + i) + j) = 0;
+			resultado[i * verticalResultado + j] = 0;
+
+			//*(*(resultado + i) + j) = 0;
 			__m256d a_reg, b_reg, c_reg;
 			double* aux;
 			aux = (double*)malloc(sizeof(double) * 4);
 			for (int k = 0; k < horizontalA; k += 4) {
-
+				/*
 				a_reg = _mm256_load_pd(*(A + i) + k);
 				b_reg = _mm256_load_pd(*(B + j) + k);
 				c_reg = _mm256_mul_pd(a_reg, b_reg);
 				_mm256_store_pd(aux, c_reg);
 
 				*(*(resultado + i) + j) += aux[0] + aux[1] + aux[2] + aux[3];
+				*/
+				a_reg = _mm256_load_pd(&A[i * verticalResultado + k]);
+				b_reg = _mm256_load_pd(&B[j * verticalResultado + k]);
+				c_reg = _mm256_mul_pd(a_reg, b_reg);
+				_mm256_store_pd(aux, c_reg);
+
+				resultado[i * verticalResultado + j] += aux[0] + aux[1] + aux[2] + aux[3];
+
+
 			}
 			free(aux);
 		}
 	}
 }
 
-void imprimeMatriz(double** matriz, int vertical, int horizontal, ofstream& archivoResultante) {
+void imprimeMatriz(double* matriz, int vertical, int horizontal, ofstream& archivoResultante) {
 	for (int i = 0; i < vertical; i++) {
 		for (int j = 0; j < horizontal; j++) {
+			archivoResultante << fixed << setprecision(10) << matriz[i * vertical + j] << endl;
+			//cout << matriz[i * vertical + j] << " ";
 			//cout<<matriz[i][j]<<" ";
 			//cout<<*(*(matriz+i)+j)<<" ";
-			archivoResultante << fixed << setprecision(10) << *(*(matriz + i) + j) << endl;
+			//archivoResultante << fixed << setprecision(10) << *(*(matriz + i) + j) << endl;
 
 			//cout<<*( matriz + i * horizontal + j) << " ";
 		}
@@ -87,9 +106,13 @@ int main() {
 	//lecturaB.open("matrixB16.txt");
 	lecturaA.open("matrixA1048576.txt");
 	lecturaB.open("matrixB1048576.txt");
+
+	//lecturaA.open("matrixA9.txt");
+	//lecturaB.open("matrixB9.txt");
+
 	//archivoResultante.open("matrizResultante4.txt");
 	archivoResultante.open("matrizResultante1024.txt");
-
+	//archivoResultante.open("matrizChiquita.txt");
 	int horizontalA, verticalA;
 	cout << "Cuanto mide la matriz A horizontalmente? ";
 	cin >> horizontalA;
@@ -116,7 +139,7 @@ int main() {
 
 	start = clock();
 	inicio = nanos();
-
+	/*
 	double** matrizA = (double**)malloc(horizontalA * sizeof(double));
 	for (int i = 0; i < horizontalA; i++) {
 		matrizA[i] = (double*)malloc(verticalA * sizeof(double));
@@ -126,17 +149,25 @@ int main() {
 	for (int i = 0; i < horizontalB; i++) {
 		matrizB[i] = (double*)malloc(verticalB * sizeof(double));
 	}
+	*/
+
+	double* matrizA = (double*)malloc(horizontalA * verticalA * sizeof(double));
+	double* matrizB = (double*)malloc(horizontalA * verticalB * sizeof(double));
+
 
 	//se prepara la lectura para la matriz resultante
 
 	int verticalResultado, horizontalResultado;
 	verticalResultado = verticalA;
 	horizontalResultado = horizontalB;
-
+	/*
 	double** resultado = (double**)malloc(horizontalResultado * sizeof(double));
 	for (int i = 0; i < horizontalResultado; i++) {
 		resultado[i] = (double*)malloc(verticalResultado * sizeof(double));
 	}
+	*/
+	double* resultado = (double*)malloc(horizontalResultado * verticalResultado * sizeof(double));
+
 
 	double read;
 
@@ -144,7 +175,8 @@ int main() {
 	for (int i = 0; i < verticalA; i++) {
 		for (int j = 0; j < horizontalA; j++) {
 			lecturaA >> read;
-			matrizA[i][j] = read;
+			matrizA[i * verticalA + j] = read;
+			//matrizA[i][j] = read;
 			//cout << read << endl;
 			//*(matrizA + i * horizontalA + j) = read;
 		}
@@ -154,12 +186,16 @@ int main() {
 	for (int i = 0; i < verticalB; i++) {
 		for (int j = 0; j < horizontalB; j++) {
 			lecturaB >> read;
-			matrizB[j][i] = read;
+			matrizB[j * verticalB + i] = read; // hay que revisar que se este transponiendo con una matriz pequenia
+			//matrizB[j][i] = read;
 			//*(matrizB + j * verticalA + i) = read;
 		}
 	}
 
 	swap(verticalB, horizontalB);
+	//imprimeMatriz(matrizA, verticalA, horizontalA, archivoResultante);
+	//imprimeMatriz(matrizB, verticalB, horizontalB, archivoResultante);
+
 
 	fin = nanos();
 	end = clock();
@@ -194,7 +230,7 @@ int main() {
 	cout << "Se obtuvo el resultado en " << tiempoTranscurrido << " ms" << endl;
 	cout << "Se obtuvo el resultado en " << tiempoEnNanosegundos << " ns" << endl;
 
-	//imprimeMatriz((double**)resultado, verticalResultado, horizontalResultado, archivoResultante);
+	//imprimeMatriz(resultado, verticalResultado, horizontalResultado, archivoResultante);
 
 	cout << "-----Open MP-----" << endl;
 
@@ -233,7 +269,7 @@ int main() {
 	start = clock();
 	inicio = nanos();
 
-	imprimeMatriz((double**)resultado, verticalResultado, horizontalResultado, archivoResultante);
+	imprimeMatriz(resultado, verticalResultado, horizontalResultado, archivoResultante);
 
 	fin = nanos();
 	end = clock();
@@ -247,19 +283,23 @@ int main() {
 	lecturaA.close();
 	lecturaB.close();
 	archivoResultante.close();
-
-    for (int i = 0; i < horizontalA; i++) {
-        free(matrizA[i]);
-    }
-    free(matrizA);
-    for (int i = 0; i < horizontalA; i++) {
-        free(matrizB[i]);
-    }
-    free(matrizB);
-    for (int i = 0; i < horizontalA; i++) {
-        free(resultado[i]);
-    }
-    free(resultado);
-
+	/*
+	for (int i = 0; i < horizontalA; i++) {
+		free(matrizA[i]);
+	}
+	free(matrizA);
+	for (int i = 0; i < horizontalA; i++) {
+		free(matrizB[i]);
+	}
+	free(matrizB);
+	for (int i = 0; i < horizontalA; i++) {
+		free(resultado[i]);
+	}
+	free(resultado);
+	*/
+	free(matrizA);
+	free(matrizB);
+	free(resultado);
+	int x; cin >> x;
 	return 0;
 }
