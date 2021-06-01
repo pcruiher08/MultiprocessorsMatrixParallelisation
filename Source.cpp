@@ -357,7 +357,7 @@ int main() {
 		//TODO: check if it is correct
 		for (int j = 0; j < verticalResultado; j++) {
 			for (int k = 0; k < horizontalResultado; k++) {
-				if (resultadoS[j * verticalResultado + k] != resultadoO[j * verticalResultado + k] && resultadoS[j * verticalResultado + k] != resultadoI[j * verticalResultado + k]) {
+				if (resultadoS[j * verticalResultado + k] != resultadoO[j * verticalResultado + k] || resultadoS[j * verticalResultado + k] != resultadoI[j * verticalResultado + k]) {
 					cout << "Error en alguna de las matrices" << endl;
 					return 0;
 				}
