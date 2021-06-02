@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <stdint.h>
 #include <intrin.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -354,10 +355,21 @@ int main() {
 
 		cout << "-------Comprobacion-------" << endl;
 
-		//TODO: check if it is correct
+		start = clock();
+		inicio = nanos();
+
 		for (int j = 0; j < verticalResultado; j++) {
 			for (int k = 0; k < horizontalResultado; k++) {
-				if (resultadoS[j * verticalResultado + k] != resultadoO[j * verticalResultado + k] || resultadoS[j * verticalResultado + k] != resultadoI[j * verticalResultado + k]) {
+				if (abs(resultadoS[j * verticalResultado + k] - resultadoO[j * verticalResultado + k]) > 10.0e-10 || abs(resultadoS[j * verticalResultado + k] - resultadoI[j * verticalResultado + k]) > 10.0e-10){
+					std::cout << std::fixed;
+					std::cout << std::setprecision(20);
+					cout << resultadoS[j * verticalResultado + k] << " " << resultadoO[j * verticalResultado + k] << " " << resultadoI[j * verticalResultado + k] << " " << endl;
+
+					cout << (abs(resultadoS[j * verticalResultado + k] - resultadoO[j * verticalResultado + k])) << endl;
+					cout << (abs(resultadoS[j * verticalResultado + k] - resultadoI[j * verticalResultado + k])) << endl;
+
+					cout << (abs(resultadoS[j * verticalResultado + k] - resultadoO[j * verticalResultado + k]) > 10.0e-10) << endl;
+					cout << (abs(resultadoS[j * verticalResultado + k] - resultadoI[j * verticalResultado + k]) > 10.0e-10) << endl;
 					cout << "Error en alguna de las matrices" << endl;
 					return 0;
 				}
@@ -365,6 +377,15 @@ int main() {
 		}
 
 		cout << "Las matrices fueron calculadas correctamente" << endl;
+
+		fin = nanos();
+		end = clock();
+
+		tiempoTranscurrido = end - start;
+		tiempoEnNanosegundos = fin - inicio;
+
+		cout << "Se comprobaron las matrices en " << tiempoTranscurrido << " ms" << endl;
+		cout << "Se comprobaron las matrices en " << tiempoEnNanosegundos << " ns" << endl;
 
 	}
 
@@ -387,6 +408,64 @@ int main() {
 	lecturaA.close();
 	lecturaB.close();
 	archivoResultante.close();
+
+	double promedioS = (tiempoTranscurridoS1 + tiempoTranscurridoS2 + tiempoTranscurridoS3 + tiempoTranscurridoS4 + tiempoTranscurridoS5) / 5;
+	double promedioO = (tiempoTranscurridoO1 + tiempoTranscurridoO2 + tiempoTranscurridoO3 + tiempoTranscurridoO4 + tiempoTranscurridoO5) / 5;
+	double promedioI = (tiempoTranscurridoI1 + tiempoTranscurridoI2 + tiempoTranscurridoI3 + tiempoTranscurridoI4 + tiempoTranscurridoI5) / 5;
+
+	double pervsSO = promedioO / promedioS;
+	double pervsSI = promedioI / promedioS;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << "-----------------------------------Tabla de Comparación de Tiempo-----------------------------------" << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << "|        Corrida        |         Serial         |         Open MP        |       Intrinsecas      |" << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << "|           1           |" <<  std::setw(23) << tiempoTranscurridoS1 << " |" << std::setw(23) << tiempoTranscurridoO1 << " |" << std::setw(23) << tiempoTranscurridoI1 << " |" << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << "|           2           |" << std::setw(23) << tiempoTranscurridoS2 << " |" << std::setw(23) << tiempoTranscurridoO2 << " |" << std::setw(23) << tiempoTranscurridoI2 << " |" << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << "|           3           |" << std::setw(23) << tiempoTranscurridoS3 << " |" << std::setw(23) << tiempoTranscurridoO3 << " |" << std::setw(23) << tiempoTranscurridoI3 << " |" << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << "|           4           |" << std::setw(23) << tiempoTranscurridoS4 << " |" << std::setw(23) << tiempoTranscurridoO4 << " |" << std::setw(23) << tiempoTranscurridoI4 << " |" << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << "|           5           |" << std::setw(23) << tiempoTranscurridoS5 << " |" << std::setw(23) << tiempoTranscurridoO5 << " |" << std::setw(23) << tiempoTranscurridoI5 << " |" << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << "|        Promedio       |" << std::setw(23) << promedioS << " |" << std::setw(23) << promedioO << " |" << std::setw(23) << promedioI << " |" << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << "|      % vs Serial      |           -            |" << std::setw(23) << pervsSO << " |" << std::setw(23) << pervsSI << " |" << endl;
+
+	cout << "----------------------------------------------------------------------------------------------------" << endl;
+
+	cout << endl;
+
+	string metodo = promedioS < promedioO ? "Serial" : promedioO < promedioI ? "Open MP" : "Intrinsecas";
+
+	cout << "El metodo mas rapido fue " << metodo << endl;
+
+
+
 	/*
 	for (int i = 0; i < horizontalA; i++) {
 		free(matrizA[i]);
