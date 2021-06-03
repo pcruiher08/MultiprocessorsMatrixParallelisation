@@ -150,9 +150,9 @@ int main() {
 	ifstream lecturaA;
 	ifstream lecturaB;
 	ofstream archivoResultante;
-	lecturaA.open("matrixA1048576.txt");
-	lecturaB.open("matrixB1048576.txt");//CAMBIAR NOMBRES DE MATRICES
-	archivoResultante.open("matrizResultante1024.txt");
+	lecturaA.open("matrizA.txt");
+	lecturaB.open("matrizB.txt");//CAMBIAR NOMBRES DE MATRICES
+	archivoResultante.open("matrizC.txt");
 
 	//se pide al usuario ingresar los datos sobre las longitudes de las matrices
 	int horizontalA, verticalA;
@@ -449,7 +449,7 @@ int main() {
 			for (int k = 0; k < horizontalResultado; k++) {
 				//cout << "            " << resultadoS[j * verticalResultado + k] << endl << resultadoO[j * verticalResultado + k] << endl << resultadoI[j * verticalResultado + k] << " " << endl;
 
-				if (abs(resultadoS[j * horizontalResultado + k] - resultadoO[j * horizontalResultado + k]) > 10.0e-10 || abs(resultadoS[j * horizontalResultado + k] - resultadoI[j * horizontalResultado + k]) > 10.0e-10) {
+				if (abs(resultadoS[j * horizontalResultado + k] - resultadoO[j * horizontalResultado + k]) > 1.0e-10 || abs(resultadoS[j * horizontalResultado + k] - resultadoI[j * horizontalResultado + k]) > 1.0e-10) {
 					std::cout << std::fixed;
 					std::cout << std::setprecision(20);
 					cout << resultadoS[j * horizontalResultado + k] << endl << resultadoO[j * horizontalResultado + k] << endl << resultadoI[j * horizontalResultado + k] << " " << endl;
@@ -457,8 +457,8 @@ int main() {
 					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoO[j * horizontalResultado + k])) << endl;
 					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoI[j * horizontalResultado + k])) << endl;
 
-					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoO[j * horizontalResultado + k]) > 10.0e-10) << endl;
-					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoI[j * horizontalResultado + k]) > 10.0e-10) << endl;
+					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoO[j * horizontalResultado + k]) > 1.0e-10) << endl;
+					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoI[j * horizontalResultado + k]) > 1.0e-10) << endl;
 
 
 					cout << "Error en alguna de las matrices" << endl;
@@ -555,7 +555,7 @@ int main() {
 
 	cout << endl;
 
-	cout << "El metodo mas rapido fue " << ((promedioS < promedioO) ? "Serial" : ((promedioO < promedioI) ? "Open MP" : "Intrinsecas")) << endl;
+	cout << "El metodo mas rapido fue " << ((promedioS < promedioO) && (promedioS < promedioI) ? "Serial" : ((promedioO < promedioI) ? "Open MP" : "Intrinsecas")) << endl;
 
 	cout << endl;
 	liberaMemoria(espaciosDeMemoria);
