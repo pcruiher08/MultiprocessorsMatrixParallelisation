@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void liberaMemoria(vector<double*> espaciosDeMemoria) {
+void liberaMemoria(vector<double*> &espaciosDeMemoria) {
 	for (int i = 0; i < espaciosDeMemoria.size(); i++) {
 		free(espaciosDeMemoria[i]);
 	}
@@ -22,12 +22,13 @@ void liberaMemoria(vector<double*> espaciosDeMemoria) {
 void multiplicaDosMatrices(double* resultado, double* A, double* B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB) {
 	for (int i = 0; i < verticalResultado; i++) {
 		for (int j = 0; j < horizontalResultado; j++) {
-			resultado[i * verticalResultado + j] = 0;
+			resultado[i * horizontalResultado + j] = 0;
 			for (int k = 0; k < horizontalA; k++) {
-				resultado[i * verticalResultado + j] += A[i * verticalResultado + k] * B[j * verticalResultado + k];
-
+				resultado[i * horizontalResultado + j] += A[i * horizontalA + k] * B[j * horizontalA + k];
 			}
+			//cout << resultado[i * horizontalResultado + j] << " ";
 		}
+		//cout << endl;
 	}
 }
 
@@ -36,42 +37,57 @@ void multiplicaDosMatricesOMP(double* resultado, double* A, double* B, int verti
 #pragma omp parallel for
 	for (int i = 0; i < verticalResultado; i++) {
 		for (int j = 0; j < horizontalResultado; j++) {
-			resultado[i * verticalResultado + j] = 0;
+			resultado[i * horizontalResultado + j] = 0;
 			for (int k = 0; k < horizontalA; k++) {
-				resultado[i * verticalResultado + j] += A[i * verticalResultado + k] * B[j * verticalResultado + k];
+				resultado[i * horizontalResultado + j] += A[i * horizontalA + k] * B[j * horizontalA + k];
 
 			}
+
+			//cout << resultado[i * horizontalResultado + j] << " ";
 		}
+		//cout << endl;
 	}
 }
 
 bool multiplicaDosMatricesIntrin(double* resultado, double* A, double* B, int verticalResultado, int horizontalResultado, int verticalA, int horizontalA, int verticalB, int horizontalB) {
 	for (int i = 0; i < verticalResultado; i++) {
 		for (int j = 0; j < horizontalResultado; j++) {
-			resultado[i * verticalResultado + j] = 0;
+
+			resultado[i * horizontalResultado + j] = 0;
 
 			__m256d a_reg, b_reg, c_reg;
 			double* aux;
 			aux = (double*)malloc(sizeof(double) * 4);
 
+
 			if (aux == NULL) {
-				cout << "No se pudo separar memoria interna para el calculo de intrinsecas, se va a liberar la memoria previamente separada y terminara la ejecución del programa" << endl;
+				cout << "No se pudo separar memoria interna para el calculo de intrinsecas, se va a liberar la memoria previamente separada y terminara la ejecuci�n del programa" << endl;
 				return false;
 			}
-			
 
-			for (int k = 0; k < horizontalA; k += 4) {
-				a_reg = _mm256_load_pd(&A[i * verticalResultado + k]);
-				b_reg = _mm256_load_pd(&B[j * verticalResultado + k]);
+			aux[0] = 0;
+			aux[1] = 0;
+			aux[2] = 0;
+			aux[3] = 0;
+
+			int padding = horizontalA % 4;
+
+			for (int k = 0; k < horizontalA - padding; k += 4) {
+				a_reg = _mm256_load_pd(&A[i * horizontalA + k]);
+				b_reg = _mm256_load_pd(&B[j * horizontalA + k]);
 				c_reg = _mm256_mul_pd(a_reg, b_reg);
 				_mm256_store_pd(aux, c_reg);
 
-				resultado[i * verticalResultado + j] += aux[0] + aux[1] + aux[2] + aux[3];
-
-
+				resultado[i * horizontalResultado + j] += aux[0] + aux[1] + aux[2] + aux[3];
 			}
+			for (int l = horizontalA - padding; l < horizontalA; l++) {
+				resultado[i * horizontalResultado + j] += A[i * horizontalA + l] * B[j * horizontalA + l];
+			}
+
+			//cout << resultado[i * horizontalResultado + j] << " ";
 			free(aux);
 		}
+		//cout << endl;
 	}
 	return true;
 }
@@ -79,8 +95,10 @@ bool multiplicaDosMatricesIntrin(double* resultado, double* A, double* B, int ve
 void imprimeMatriz(double* matriz, int vertical, int horizontal, ofstream& archivoResultante) {
 	for (int i = 0; i < vertical; i++) {
 		for (int j = 0; j < horizontal; j++) {
-			archivoResultante << fixed << setprecision(10) << matriz[i * vertical + j] << endl;
+			archivoResultante << fixed << setprecision(10) << matriz[i * horizontal + j] << endl;
+			//cout << matriz[i * horizontal + j] << " ";
 		}
+		//cout << endl;
 	}
 }
 
@@ -132,22 +150,24 @@ int main() {
 	ifstream lecturaA;
 	ifstream lecturaB;
 	ofstream archivoResultante;
-	lecturaA.open("matrixA1048576.txt");
-	lecturaB.open("matrixB1048576.txt");//CAMBIAR NOMBRES DE MATRICES
-	archivoResultante.open("matrizResultante1024.txt");
+	lecturaA.open("matrizA.txt");
+	lecturaB.open("matrizB.txt");
+	archivoResultante.open("matrizC.txt");
 
 	//se pide al usuario ingresar los datos sobre las longitudes de las matrices
 	int horizontalA, verticalA;
-	cout << "Cuanto mide la matriz A horizontalmente? ";
-	cin >> horizontalA;
 	cout << "Cuanto mide la matriz A verticalmente? ";
 	cin >> verticalA;
+	cout << "Cuanto mide la matriz A horizontalmente? ";
+	cin >> horizontalA;
+
 
 	int horizontalB, verticalB;
-	cout << "Cuanto mide la matriz B horizontalmente? ";
-	cin >> horizontalB;
 	cout << "Cuanto mide la matriz B verticalmente? ";
 	cin >> verticalB;
+	cout << "Cuanto mide la matriz B horizontalmente? ";
+	cin >> horizontalB;
+
 
 	//se revisa que se puedan multiplicar las matrices, si no se puede, se acaba el programa
 	if (horizontalA != verticalB) {
@@ -162,7 +182,7 @@ int main() {
 
 	start = clock();
 	inicio = nanos();
-	
+
 
 	//se prepara un vector de apuntadores tipo double que se va a usar para liberar memoria despues con la funcion liberaMemoria
 	vector<double*> espaciosDeMemoria;
@@ -172,17 +192,19 @@ int main() {
 
 	//se separa memoria para las matrices con la siguiente logica
 	if (matrizA == NULL) {
-		cout << "No se pudo separar memoria para la matriz A, se va a terminar la ejecución del programa" << endl;
+		cout << "No se pudo separar memoria para la matriz A, se va a terminar la ejecuci�n del programa" << endl;
 		return 0;
-	} else {
+	}
+	else {
 		espaciosDeMemoria.push_back(matrizA);
 	}
 
-	double* matrizB = (double*)malloc(horizontalA * verticalB * sizeof(double));
+	double* matrizB = (double*)malloc(horizontalB * verticalB * sizeof(double));
 
 	if (matrizB == NULL) {
-		cout << "No se pudo separar memoria para la matriz B, se va a liberar la memoria previamente separada y terminara la ejecución del programa" << endl;
+		cout << "No se pudo separar memoria para la matriz B, se va a liberar la memoria previamente separada y terminara la ejecuci�n del programa" << endl;
 		liberaMemoria(espaciosDeMemoria);
+
 		return 0;
 	}
 	else {
@@ -198,8 +220,9 @@ int main() {
 	double* resultadoS = (double*)malloc(horizontalResultado * verticalResultado * sizeof(double));
 
 	if (resultadoS == NULL) {
-		cout << "No se pudo separar memoria para la matriz resultante de la ejecucion serial, se va a liberar la memoria previamente separada y terminara la ejecución del programa" << endl;
+		cout << "No se pudo separar memoria para la matriz resultante de la ejecucion serial, se va a liberar la memoria previamente separada y terminara la ejecuci�n del programa" << endl;
 		liberaMemoria(espaciosDeMemoria);
+
 		return 0;
 	}
 	else {
@@ -209,8 +232,9 @@ int main() {
 	double* resultadoO = (double*)malloc(horizontalResultado * verticalResultado * sizeof(double));
 
 	if (resultadoO == NULL) {
-		cout << "No se pudo separar memoria para la matriz resultante de la ejecucion OMP, se va a liberar la memoria previamente separada y terminara la ejecución del programa" << endl;
+		cout << "No se pudo separar memoria para la matriz resultante de la ejecucion OMP, se va a liberar la memoria previamente separada y terminara la ejecuci�n del programa" << endl;
 		liberaMemoria(espaciosDeMemoria);
+
 		return 0;
 	}
 	else {
@@ -220,8 +244,9 @@ int main() {
 	double* resultadoI = (double*)malloc(horizontalResultado * verticalResultado * sizeof(double));
 
 	if (resultadoI == NULL) {
-		cout << "No se pudo separar memoria para la matriz resultante de la ejecucion con intrinsecas, se va a liberar la memoria previamente separada y terminara la ejecución del programa" << endl;
+		cout << "No se pudo separar memoria para la matriz resultante de la ejecucion con intrinsecas, se va a liberar la memoria previamente separada y terminara la ejecuci�n del programa" << endl;
 		liberaMemoria(espaciosDeMemoria);
+
 		return 0;
 	}
 	else {
@@ -229,27 +254,66 @@ int main() {
 	}
 
 	double read;
+	char saltoDeLinea;
 
 	//se lee normal sin transponer
 	for (int i = 0; i < verticalA; i++) {
 		for (int j = 0; j < horizontalA; j++) {
 			if (!lecturaA.eof()) {
 				lecturaA >> read;
-				matrizA[i * verticalA + j] = read;
-			} else {
+				matrizA[i * horizontalA + j] = read;
+			}
+			else {
 				//datos incorrectos en la medida de la matriz que se introdujo
-				cout << "La medida indicada de la matriz no corresponde a la longitud del archivo, se va a liberar la memoria previamente separada y terminara la ejecucion del programa" << endl;
+				cout << "La medida indicada de la matriz A es mayor a la longitud del archivo, se va a liberar la memoria previamente separada y terminara la ejecucion del programa" << endl;
+
+				liberaMemoria(espaciosDeMemoria);
+
+
+				return 0;
 			}
 		}
+	}
+	lecturaA >> saltoDeLinea;
+	if (!lecturaA.eof()) {
+		//datos incorrectos en la medida de la matriz que se introdujo
+		cout << "La medida indicada de la matriz A es menor a la longitud del archivo, se va a liberar la memoria previamente separada y terminara la ejecucion del programa" << endl;
+
+		liberaMemoria(espaciosDeMemoria);
+
+
+		return 0;
 	}
 
 	//se lee transpuesta para hacer operaciones con memoria contigua
 	for (int i = 0; i < verticalB; i++) {
 		for (int j = 0; j < horizontalB; j++) {
-			lecturaB >> read;
-			matrizB[j * verticalB + i] = read;
+			if (!lecturaB.eof()) {
+				lecturaB >> read;
+				matrizB[j * verticalB + i] = read;
+			}
+			else {
+				//datos incorrectos en la medida de la matriz que se introdujo
+				cout << "La medida indicada de la matriz B es mayor a la longitud del archivo, se va a liberar la memoria previamente separada y terminara la ejecucion del programa" << endl;
+
+				liberaMemoria(espaciosDeMemoria);
+
+
+				return 0;
+			}
 		}
 	}
+	lecturaB >> saltoDeLinea;
+	if (!lecturaB.eof()) {
+		//datos incorrectos en la medida de la matriz que se introdujo
+		cout << "La medida indicada de la matriz B es menor a la longitud del archivo, se va a liberar la memoria previamente separada y terminara la ejecucion del programa" << endl;
+
+		liberaMemoria(espaciosDeMemoria);
+
+
+		return 0;
+	}
+
 	//se cambian los ejes de la matriz B porque se guarda transpuesta
 	swap(verticalB, horizontalB);
 
@@ -312,7 +376,7 @@ int main() {
 		inicio = nanos();
 		//aqui se mandan a multiplicar las matrices con el metodo OMP
 		multiplicaDosMatricesOMP(resultadoO, matrizA, matrizB, verticalResultado, horizontalResultado, verticalA, horizontalA, verticalB, horizontalB);
-		
+
 		fin = nanos();
 		end = clock();
 
@@ -387,19 +451,23 @@ int main() {
 		//aqui se estan comparando las matrices para buscar diferencias con presicion de 10^(-10)
 		for (int j = 0; j < verticalResultado; j++) {
 			for (int k = 0; k < horizontalResultado; k++) {
-				if (abs(resultadoS[j * verticalResultado + k] - resultadoO[j * verticalResultado + k]) > 10.0e-10 || abs(resultadoS[j * verticalResultado + k] - resultadoI[j * verticalResultado + k]) > 10.0e-10) {
+				//cout << "            " << resultadoS[j * verticalResultado + k] << endl << resultadoO[j * verticalResultado + k] << endl << resultadoI[j * verticalResultado + k] << " " << endl;
+
+				if (abs(resultadoS[j * horizontalResultado + k] - resultadoO[j * horizontalResultado + k]) > 1.0e-10 || abs(resultadoS[j * horizontalResultado + k] - resultadoI[j * horizontalResultado + k]) > 1.0e-10) {
 					std::cout << std::fixed;
 					std::cout << std::setprecision(20);
-					cout << resultadoS[j * verticalResultado + k] << " " << resultadoO[j * verticalResultado + k] << " " << resultadoI[j * verticalResultado + k] << " " << endl;
+					cout << resultadoS[j * horizontalResultado + k] << endl << resultadoO[j * horizontalResultado + k] << endl << resultadoI[j * horizontalResultado + k] << " " << endl;
 
-					cout << (abs(resultadoS[j * verticalResultado + k] - resultadoO[j * verticalResultado + k])) << endl;
-					cout << (abs(resultadoS[j * verticalResultado + k] - resultadoI[j * verticalResultado + k])) << endl;
+					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoO[j * horizontalResultado + k])) << endl;
+					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoI[j * horizontalResultado + k])) << endl;
 
-					cout << (abs(resultadoS[j * verticalResultado + k] - resultadoO[j * verticalResultado + k]) > 10.0e-10) << endl;
-					cout << (abs(resultadoS[j * verticalResultado + k] - resultadoI[j * verticalResultado + k]) > 10.0e-10) << endl;
-					
-			
+					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoO[j * horizontalResultado + k]) > 1.0e-10) << endl;
+					cout << (abs(resultadoS[j * horizontalResultado + k] - resultadoI[j * horizontalResultado + k]) > 1.0e-10) << endl;
+
+
 					cout << "Error en alguna de las matrices" << endl;
+
+
 					return 0;
 				}
 			}
@@ -451,7 +519,7 @@ int main() {
 
 	cout << "----------------------------------------------------------------------------------------------------" << endl;
 
-	cout << "-----------------------------------Tabla de Comparación de Tiempo-----------------------------------" << endl;
+	cout << "-----------------------------------Tabla de Comparaci�n de Tiempo-----------------------------------" << endl;
 
 	cout << "----------------------------------------------------------------------------------------------------" << endl;
 
@@ -493,9 +561,11 @@ int main() {
 
 	cout << endl;
 
-	cout << "El metodo mas rapido fue " << ((promedioS < promedioO) ? "Serial" : ((promedioO < promedioI) ? "Open MP" : "Intrinsecas")) << endl;
+	cout << "El metodo mas rapido fue " << ((promedioS < promedioO) && (promedioS < promedioI) ? "Serial" : ((promedioO < promedioI) ? "Open MP" : "Intrinsecas")) << endl;
 
+	cout << endl;
 	liberaMemoria(espaciosDeMemoria);
+
 
 	return 0;
 }
