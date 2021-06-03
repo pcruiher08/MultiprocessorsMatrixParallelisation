@@ -151,21 +151,23 @@ int main() {
 	ifstream lecturaB;
 	ofstream archivoResultante;
 	lecturaA.open("matrizA.txt");
-	lecturaB.open("matrizB.txt");//CAMBIAR NOMBRES DE MATRICES
+	lecturaB.open("matrizB.txt");
 	archivoResultante.open("matrizC.txt");
 
 	//se pide al usuario ingresar los datos sobre las longitudes de las matrices
 	int horizontalA, verticalA;
-	cout << "Cuanto mide la matriz A horizontalmente? ";
-	cin >> horizontalA;
 	cout << "Cuanto mide la matriz A verticalmente? ";
 	cin >> verticalA;
+	cout << "Cuanto mide la matriz A horizontalmente? ";
+	cin >> horizontalA;
+
 
 	int horizontalB, verticalB;
-	cout << "Cuanto mide la matriz B horizontalmente? ";
-	cin >> horizontalB;
 	cout << "Cuanto mide la matriz B verticalmente? ";
 	cin >> verticalB;
+	cout << "Cuanto mide la matriz B horizontalmente? ";
+	cin >> horizontalB;
+
 
 	//se revisa que se puedan multiplicar las matrices, si no se puede, se acaba el programa
 	if (horizontalA != verticalB) {
@@ -191,7 +193,6 @@ int main() {
 	//se separa memoria para las matrices con la siguiente logica
 	if (matrizA == NULL) {
 		cout << "No se pudo separar memoria para la matriz A, se va a terminar la ejecución del programa" << endl;
-
 		return 0;
 	}
 	else {
@@ -203,6 +204,7 @@ int main() {
 	if (matrizB == NULL) {
 		cout << "No se pudo separar memoria para la matriz B, se va a liberar la memoria previamente separada y terminara la ejecución del programa" << endl;
 		liberaMemoria(espaciosDeMemoria);
+
 		return 0;
 	}
 	else {
@@ -232,6 +234,7 @@ int main() {
 	if (resultadoO == NULL) {
 		cout << "No se pudo separar memoria para la matriz resultante de la ejecucion OMP, se va a liberar la memoria previamente separada y terminara la ejecución del programa" << endl;
 		liberaMemoria(espaciosDeMemoria);
+
 		return 0;
 	}
 	else {
@@ -243,6 +246,7 @@ int main() {
 	if (resultadoI == NULL) {
 		cout << "No se pudo separar memoria para la matriz resultante de la ejecucion con intrinsecas, se va a liberar la memoria previamente separada y terminara la ejecución del programa" << endl;
 		liberaMemoria(espaciosDeMemoria);
+
 		return 0;
 	}
 	else {
@@ -462,6 +466,8 @@ int main() {
 
 
 					cout << "Error en alguna de las matrices" << endl;
+
+
 					return 0;
 				}
 			}
@@ -559,7 +565,6 @@ int main() {
 
 	cout << endl;
 	liberaMemoria(espaciosDeMemoria);
-
 
 
 	return 0;
